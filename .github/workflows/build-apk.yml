@@ -25,11 +25,14 @@ jobs:
         with:
           node-version: '20'
 
-      - name: Install Capacitor & Dependencies
+      - name: Prepare Web Assets & Capacitor
         run: |
           npm init -y
           npm install @capacitor/core@latest @capacitor/cli@latest @capacitor/android@latest
-          npx cap init KirimPesan com.kirimpesan.chat --web-dir .
+          mkdir -p www
+          cp -r index.html manifest.json service-worker.js css js assets www/
+          rm -f capacitor.config.json
+          npx cap init KirimPesan com.kirimpesan.chat --web-dir www
           npx cap add android
           npx cap sync android
 
