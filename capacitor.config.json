@@ -1,0 +1,14 @@
+{
+  "appId": "com.kirimpesan.chat",
+  "appName": "KirimPesan",
+  "webDir": ".",
+  "bundledWebRuntime": false,
+  "server": {
+    "androidScheme": "https"
+  },
+  "android": {
+    "allowMixedContent": true,
+    "captureInput": true,
+    "webContentsDebuggingEnabled": true
+  }
+}

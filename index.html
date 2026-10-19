@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="id" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <title>KirimPesan - Chat Ringan & Cepat</title>
+  
+  <!-- PWA & Android Meta Tags -->
+  <meta name="theme-color" content="#00a884">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="KirimPesan">
+  <link rel="manifest" href="manifest.json">
+  <link rel="icon" type="image/png" href="assets/icons/icon-192.png">
+
+  <!-- Stylesheets -->
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/chat.css">
+  <link rel="stylesheet" href="css/call.css">
+
+  <!-- Firebase App SDK (Optional Realtime Sync) -->
+  <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-database-compat.js"></script>
+</head>
+<body>
+
+  <!-- Toast Notification -->
+  <div class="toast-notice" id="appToast">Notifikasi</div>
+
+  <!-- Main Mobile Frame -->
+  <div id="app-container">
+
+    <!-- 1. Top App Header -->
+    <header class="app-header">
+      <span class="app-title">KirimPesan</span>
+      <div class="header-actions">
+        <!-- Theme Toggle -->
+        <button type="button" class="header-action-btn" id="btnToggleTheme" title="Ganti Mode Gelap/Terang">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
+        </button>
+        <!-- Settings -->
+        <button type="button" class="header-action-btn" id="btnOpenSettings" title="Pengaturan">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+        </button>
+      </div>
+    </header>
+
+    <!-- 2. WhatsApp Navigation Tabs -->
+    <nav class="app-tabs">
+      <button type="button" class="tab-btn active" data-tab="chat">
+        <span>Chat</span>
+        <span class="tab-badge" id="badgeUnreadChats">2</span>
+      </button>
+      <button type="button" class="tab-btn" data-tab="status">
+        <span>Status</span>
+      </button>
+      <button type="button" class="tab-btn" data-tab="calls">
+        <span>Panggilan</span>
+      </button>
+    </nav>
+
+    <!-- 3. Main Views Container -->
+    <main class="main-view-container">
+
+      <!-- TAB 1: DAFTAR CHAT -->
+      <section class="tab-content active" id="tabContent_chat">
+        <!-- Search bar -->
+        <div class="search-wrapper">
+          <div class="search-box">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+            <input type="text" class="search-input" id="searchContactsInput" placeholder="Cari obrolan atau kontak...">
+          </div>
+        </div>
+
+        <!-- Chat Items List -->
+        <ul class="chat-list" id="chatContactsList">
+          <!-- Rendered by js/app.js -->
+        </ul>
+      </section>
+
+      <!-- TAB 2: STATUS -->
+      <section class="tab-content" id="tabContent_status">
+        <div class="status-section">
+          <!-- Status Saya -->
+          <div class="my-status-card" id="btnMyStatus">
+            <div class="chat-avatar-wrapper">
+              <div class="chat-avatar" style="background-color: var(--wa-primary);">S</div>
+              <span class="add-status-badge">+</span>
+            </div>
+            <div class="chat-info">
+              <span class="chat-contact-name">Status saya</span>
+              <span class="chat-time">Ketuk untuk menambahkan pembaruan status</span>
+            </div>
+          </div>
+
+          <div class="status-header-text">Pembaruan terkini</div>
+          <!-- Status Teman -->
+          <ul class="chat-list">
+            <li class="chat-item">
+              <div class="chat-avatar-wrapper" style="border: 2px solid #25d366; border-radius: 50%; padding: 2px;">
+                <div class="chat-avatar" style="background-color: #128c7e;">B</div>
+              </div>
+              <div class="chat-info">
+                <span class="chat-contact-name">Budi Santoso</span>
+                <span class="chat-time">24 menit yang lalu</span>
+              </div>
+            </li>
+            <li class="chat-item">
+              <div class="chat-avatar-wrapper" style="border: 2px solid #25d366; border-radius: 50%; padding: 2px;">
+                <div class="chat-avatar" style="background-color: #e0538f;">S</div>
+              </div>
+              <div class="chat-info">
+                <span class="chat-contact-name">Siti Rahma</span>
+                <span class="chat-time">Hari ini pukul 08.15</span>
+              </div>
+            </li>
+          </ul>
+        </div>
+      </section>
+
+      <!-- TAB 3: PANGGILAN -->
+      <section class="tab-content" id="tabContent_calls">
+        <ul class="chat-list" id="callsHistoryList">
+          <!-- Rendered by js/app.js -->
+        </ul>
+      </section>
+
+    </main>
+
+    <!-- Floating Action Button (FAB) -->
+    <button type="button" class="fab-btn" id="fabNewChat" title="Chat Baru">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor"><path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2z"/></svg>
+    </button>
+
+    <!-- 4. CHAT ROOM SCREEN (Identik WhatsApp) -->
+    <div class="chat-room-view" id="chatRoomView">
+      <!-- Header Chat Room -->
+      <div class="chat-room-header">
+        <button type="button" class="chat-back-btn" id="btnChatBack" title="Kembali">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+        </button>
+
+        <div class="chat-header-user" id="btnChatHeaderProfile">
+          <div class="chat-header-avatar" id="chatHeaderAvatar">B</div>
+          <div class="chat-header-info">
+            <div class="chat-header-name" id="chatHeaderName">Budi Santoso</div>
+            <div class="chat-header-status" id="chatHeaderStatus">online</div>
+          </div>
+        </div>
+
+        <div class="header-actions">
+          <button type="button" class="header-action-btn" id="btnChatVideoCall" title="Panggilan Video">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M17 10.5V7a1 1 0 0 0-1-1H4a1 1 0 0 0-1 1v10a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-3.5l4 4v-11l-4 4z"/></svg>
+          </button>
+          <button type="button" class="header-action-btn" id="btnChatVoiceCall" title="Panggilan Suara">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M6.62 10.79a15.05 15.05 0 0 0 6.59 6.59l2.2-2.2a1 1 0 0 1 1.02-.24 11.72 11.72 0 0 0 3.67.59 1 1 0 0 1 1 1v3.5a1 1 0 0 1-1 1A17 17 0 0 1 3 4a1 1 0 0 1 1-1h3.5a1 1 0 0 1 1 1 11.72 11.72 0 0 0 .59 3.67 1 1 0 0 1-.24 1.02l-2.22 2.1z"/></svg>
+          </button>
+        </div>
+      </div>
+
+      <!-- Messages Body -->
+      <div class="chat-messages-container" id="chatMessagesContainer">
+        <!-- Rendered by js/chat.js -->
+      </div>
+
+      <!-- Attachment Menu Drawer -->
+      <div class="attachment-drawer" id="attachmentDrawer">
+        <label class="attach-option">
+          <div class="attach-icon-circle attach-photo">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+          </div>
+          <span>Galeri</span>
+          <input type="file" id="imageFileInput" accept="image/*" style="display: none;">
+        </label>
+        <label class="attach-option" onclick="document.getElementById('imageFileInput').click();">
+          <div class="attach-icon-circle attach-camera">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
+          </div>
+          <span>Kamera</span>
+        </label>
+        <button type="button" class="attach-option" onclick="window.appEngine.showToast('Fitur dokumen siap!');">
+          <div class="attach-icon-circle attach-document">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+          </div>
+          <span>Dokumen</span>
+        </button>
+      </div>
+
+      <!-- Input Bar -->
+      <div class="chat-input-bar">
+        <div class="input-pill-container">
+          <button type="button" class="input-tool-btn" title="Emoji">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M8 14s1.5 2 4 2 4-2 4-2"/><line x1="9" y1="9" x2="9.01" y2="9"/><line x1="15" y1="9" x2="15.01" y2="9"/></svg>
+          </button>
+          <textarea class="chat-text-input" id="chatTextInput" rows="1" placeholder="Ketik pesan..."></textarea>
+          <button type="button" class="input-tool-btn" id="btnAttachDrawer" title="Lampiran">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"/></svg>
+          </button>
+        </div>
+        <button type="button" class="btn-send-voice" id="btnSendVoice" title="Pesan Suara">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3zm5.91-3c-.49 0-.9.36-.98.85C16.52 14.2 14.47 16 12 16s-4.52-1.8-4.93-4.15c-.08-.49-.49-.85-.98-.85-.61 0-1.09.54-1 1.14.49 3 2.89 5.35 5.91 5.78V20c0 .55.45 1 1 1s1-.45 1-1v-2.08c3.02-.43 5.42-2.78 5.91-5.78.1-.6-.39-1.14-1-1.14z"/></svg>
+        </button>
+      </div>
+    </div>
+
+    <!-- 5. CALL OVERLAY SCREEN (PANGGILAN SUARA & VIDEO CALL) -->
+    <div class="call-overlay-screen" id="callOverlayScreen">
+      <!-- Top Info -->
+      <div class="call-header-center">
+        <div class="call-title-type" id="callTypeBadge">Video Call WhatsApp</div>
+        <div class="call-contact-name" id="callContactName">Budi Santoso</div>
+        <div class="call-status-timer" id="callStatusTimer">Memanggil...</div>
+      </div>
+
+      <!-- Voice Avatar Pulse (Untuk Panggilan Suara) -->
+      <div class="call-avatar-wrapper" id="voiceCallAvatarWrapper">
+        <div class="call-avatar-pulse"></div>
+        <div class="call-avatar-pulse-2"></div>
+        <div class="call-main-avatar" id="callMainAvatar">B</div>
+      </div>
+
+      <!-- Video Call Container (Untuk Video Call) -->
+      <div class="call-video-container" id="callVideoContainer">
+        <!-- Remote Video -->
+        <video id="remoteVideoStreamElement" class="remote-video-stream" autoplay playsinline></video>
+        <!-- Local Camera Picture-in-Picture -->
+        <div class="local-video-pip">
+          <video id="localVideoPipElement" autoplay playsinline muted></video>
+        </div>
+      </div>
+
+      <!-- Bottom Call Actions -->
+      <div class="call-actions-bar">
+        <button type="button" class="call-action-btn" id="btnCallMute" title="Mute Mikrofon">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></svg>
+        </button>
+        <button type="button" class="call-action-btn" id="btnCallToggleVideo" title="Kamera">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 7l-7 5 7 5V7z"/><rect x="1" y="5" width="15" height="14" rx="2" ry="2"/></svg>
+        </button>
+        <button type="button" class="call-action-btn btn-end-call" id="btnEndCall" title="Tutup Panggilan">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><path d="M12 9c-1.6 0-3.15.25-4.6.72v3.1c0 .39-.23.74-.56.9-.98.49-1.87 1.12-2.66 1.85-.18.18-.43.28-.7.28-.28 0-.53-.11-.71-.29L.29 13.08a.99.99 0 0 1 0-1.41C3.41 8.52 7.45 6.7 12 6.7s8.59 1.82 11.71 4.97c.39.39.39 1.02 0 1.41l-2.48 2.48c-.18.18-.43.29-.71.29-.27 0-.52-.11-.7-.28-.79-.74-1.69-1.36-2.67-1.85-.33-.16-.56-.5-.56-.9v-3.1C15.15 9.25 13.6 9 12 9z"/></svg>
+        </button>
+      </div>
+    </div>
+
+    <!-- 6. MODAL: TAMBAH KONTAK BARU -->
+    <div class="modal-overlay" id="modalNewContact">
+      <div class="modal-content">
+        <div class="modal-header">
+          <span class="modal-title">Tambah Kontak Baru</span>
+          <button type="button" class="modal-close-btn">&times;</button>
+        </div>
+        <div class="modal-body">
+          <form id="formAddContact">
+            <div class="form-group">
+              <label class="form-label">Nama Kontak</label>
+              <input type="text" class="form-input" id="inputContactName" placeholder="Contoh: Rian Pratama" required autofocus>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Nomor WhatsApp / ID Pengguna</label>
+              <input type="text" class="form-input" id="inputContactPhone" placeholder="Contoh: +62 812-9999-8888">
+            </div>
+            <button type="submit" class="btn-primary">Mulai Chat</button>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <!-- 7. MODAL: PENGATURAN & FIREBASE -->
+    <div class="modal-overlay" id="modalSettings">
+      <div class="modal-content">
+        <div class="modal-header">
+          <span class="modal-title">Pengaturan KirimPesan</span>
+          <button type="button" class="modal-close-btn">&times;</button>
+        </div>
+        <div class="modal-body">
+          <form id="formSaveFirebase">
+            <div class="form-group">
+              <label class="form-label">Nama Pengguna Anda</label>
+              <input type="text" class="form-input" id="inputMyName" value="Saya">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Firebase Realtime Database URL</label>
+              <input type="text" class="form-input" id="inputFirebaseUrl" placeholder="https://proyek-anda-default-rtdb.firebaseio.com">
+              <small style="color: var(--text-muted); font-size: 0.72rem; display: block; margin-top: 4px;">
+                Kosongkan untuk menggunakan mode simulasi lokal otomatis tanpa server.
+              </small>
+            </div>
+            <button type="submit" class="btn-primary">Simpan Pengaturan</button>
+          </form>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Scripts -->
+  <script src="js/firebase-config.js"></script>
+  <script src="js/media.js"></script>
+  <script src="js/call.js"></script>
+  <script src="js/chat.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
