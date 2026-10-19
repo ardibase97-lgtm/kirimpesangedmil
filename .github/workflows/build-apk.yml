@@ -25,22 +25,35 @@ jobs:
         with:
           node-version: '20'
 
-      - name: Prepare Web Assets & Capacitor
+      - name: Build Web & Capacitor Android
         run: |
-          npm init -y
-          npm install @capacitor/core@latest @capacitor/cli@latest @capacitor/android@latest
           mkdir -p www
-          cp -r index.html manifest.json service-worker.js css js assets www/
-          rm -f capacitor.config.json
-          npx cap init KirimPesan com.kirimpesan.chat --web-dir www
+          cp -rf index.html manifest.json service-worker.js css js assets www/ 2>/dev/null || true
+          cat << 'EOF' > package.json
+          {
+            "name": "kirimpesan",
+            "version": "1.0.0",
+            "dependencies": {
+              "@capacitor/core": "^5.7.0",
+              "@capacitor/cli": "^5.7.0",
+              "@capacitor/android": "^5.7.0"
+            }
+          }
+          EOF
+          cat << 'EOF' > capacitor.config.json
+          {
+            "appId": "com.kirimpesan.chat",
+            "appName": "KirimPesan",
+            "webDir": "www",
+            "bundledWebRuntime": false
+          }
+          EOF
+          npm install
           npx cap add android
           npx cap sync android
-
-      - name: Build APK dengan Gradle
-        run: |
           cd android
           chmod +x ./gradlew
-          ./gradlew assembleDebug
+          ./gradlew assembleDebug --no-daemon
 
       - name: Upload File APK Siap Instal
         uses: actions/upload-artifact@v4
